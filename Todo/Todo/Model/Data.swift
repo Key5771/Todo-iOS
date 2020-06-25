@@ -15,6 +15,6 @@ struct Data: Codable {
 
 struct Todo: Codable {
     let id: Int?
-    let text: String?
-    let idDone: Bool?
+    var text: String?
+    let isDone: Bool
 }

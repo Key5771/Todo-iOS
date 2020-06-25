@@ -36,18 +36,5 @@ class NetworkRequest {
         }
     }
     
-    func request(api: API,
-                 method: Alamofire.HTTPMethod,
-                 parameters: Parameters? = nil,
-                 completion handler: @escaping (Error?) -> Void) {
-        
-        AF.request(baseUrl+api.rawValue, method: method, parameters: parameters).response { (response) in
-            if response.response?.statusCode == 200 {
-                handler(nil)
-            } else {
-                handler(NetworkError.http404)
-                print("StatusCode:\(String(describing: response.response?.statusCode)), RequestURL:\(String(describing:response.request?.url)), Headerr:\(String(describing:response.request?.httpBody))")
-            }
-        }
-    }
+    
 }
