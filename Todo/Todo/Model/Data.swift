@@ -18,3 +18,13 @@ struct Todo: Codable {
     var text: String?
     let isDone: Bool
 }
+
+struct PostTodoData: Codable {
+    let id: Int?
+    var text: String?
+    let isDone: Bool
+    
+    func toTodoData() -> Todo {
+        return Todo(id: id ?? 0, text: text ?? "" , isDone: false)
+    }
+}

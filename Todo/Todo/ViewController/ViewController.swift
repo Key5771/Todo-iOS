@@ -36,27 +36,31 @@ class ViewController: UIViewController {
             self.tableView.reloadData()
         }
     }
-    
+
     @IBAction func addClick(_ sender: Any) {
         let alertController = UIAlertController(title: "Todo 추가", message: "할 일을 추가해주세요", preferredStyle: .alert)
-        
+
         alertController.addTextField { (textField) in
             textField.placeholder = "할 일을 입력해주세요!"
-            self.text = textField.text ?? ""
         }
-        
+
         let okButton = UIAlertAction(title: "확인", style: .default) { (result) in
-            self.post.text = self.text
+            self.post.text = alertController.textFields?[0].text
             
-            
+            NetworkRequest.shared.requestTodo(api: .getInfo, method: .post, parameters: self.post) { (err) in
+                if let err = err {
+                    print("error:\(err)")
+                }
+            }
+
             self.tableView.reloadData()
         }
-        
-        let cancelButton = UIAlertAction(title: "취소", style: .cancel, handler: nil)
-        
+
+        let cancelButton = UIAlertAction(title: "취소", style: .destructive, handler: nil)
+
         alertController.addAction(cancelButton)
         alertController.addAction(okButton)
-        
+
         self.present(alertController, animated: true, completion: nil)
     }
     
