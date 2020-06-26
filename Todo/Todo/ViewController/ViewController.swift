@@ -13,7 +13,10 @@ class ViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var addButton: UIBarButtonItem!
     
+    private let refreshControl = UIRefreshControl()
+    
     var todo: [Todo] = []
+    var setTodo: [Todo] = []
     var post = Todo(id: nil, text: nil, isDone: false)
     var text: String = ""
     
@@ -23,6 +26,13 @@ class ViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         
+        tableView.refreshControl = refreshControl
+        refreshControl.addTarget(self, action: #selector(refresh), for: .valueChanged)
+        
+        getTodo()
+    }
+    
+    @objc func refresh() {
         getTodo()
     }
     
@@ -33,6 +43,8 @@ class ViewController: UIViewController {
     func getTodo() {
         NetworkRequest.shared.responseTodo(api: .getInfo, method: .get) { (response: Data) in
             self.todo.append(contentsOf: response.data)
+            self.setTodo = Array(Set(self.todo))
+            self.refreshControl.endRefreshing()
             self.tableView.reloadData()
         }
     }
@@ -69,13 +81,13 @@ class ViewController: UIViewController {
 
 extension ViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return todo.count
+        return setTodo.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "listCell", for: indexPath) as! ListTableViewCell
         
-        cell.contentLabel.text = todo[indexPath.row].text
+        cell.contentLabel.text = setTodo[indexPath.row].text
         
         return cell
     }
@@ -85,4 +97,18 @@ extension ViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
     }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            NetworkRequest.shared.deleteTodo(api: .delete, method: .delete, parameters: self.setTodo[indexPath.row].id!) { (err) in
+                if let err = err {
+                    print("Error getting DELETE: \(err)")
+                }
+            }
+            
+            self.setTodo.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .fade)
+        }
+    }
 }
+

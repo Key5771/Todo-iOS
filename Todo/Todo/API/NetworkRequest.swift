@@ -15,6 +15,7 @@ class NetworkRequest {
     
     enum API: String {
         case getInfo = "/todo"
+        case delete = "/todo/"
     }
     
     enum NetworkError: Error {
@@ -38,6 +39,17 @@ class NetworkRequest {
     
     func requestTodo(api: API, method: Alamofire.HTTPMethod, parameters: Todo? = nil, completion handler: @escaping (Error?) -> Void) {
         AF.request(baseUrl+api.rawValue, method: method, parameters: parameters, encoder: JSONParameterEncoder.default).response { (response) in
+            switch response.result {
+            case .success(_):
+                handler(nil)
+            case .failure(let err):
+                print("Error getting POST: \(err)")
+            }
+        }
+    }
+    
+    func deleteTodo(api: API, method: Alamofire.HTTPMethod, parameters: Int, completion handler: @escaping (Error?) -> Void) {
+        AF.request(baseUrl+api.rawValue + String(parameters), method: method, parameters: parameters, encoder: JSONParameterEncoder.default).response { (response) in
             switch response.result {
             case .success(_):
                 handler(nil)

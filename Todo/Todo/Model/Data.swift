@@ -13,7 +13,7 @@ struct Data: Codable {
     let ok: Bool
 }
 
-struct Todo: Codable {
+struct Todo: Codable, Hashable {
     let id: Int?
     var text: String?
     let isDone: Bool
